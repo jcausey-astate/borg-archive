@@ -7,17 +7,17 @@
 #
 # MIT License
 #
-# Copyright 2025 Jason L. Causey 
+# Copyright 2025 Jason L. Causey
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the “Software”), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions: 
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.  
+# copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -93,7 +93,11 @@ umount | unmount)
     exit 0
     ;; # OK, show help then exit
 *)
-    echo "First argument must be create, extract, help, list, mount, or update.  Saw '${ACTION}'."
+    SAW=''
+    if [ -n "${ACTION}" ]; then
+        SAW="  Saw '${ACTION}'."
+    fi
+    echo "First argument must be create, extract, help, list, mount, or update.${SAW}"
     usage
     exit 1
     ;;
