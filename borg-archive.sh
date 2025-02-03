@@ -144,7 +144,7 @@ create) # CREATE NEW ARCHIVE
     borg init --encryption "${ENCR_MODE}" "$@" "${WORKDIR}"
     OLDDIR="$(pwd)"
     cd "${SOURCEDIR}/.."
-    borg create "${WORKDIR}::${TAG}" "$(basename "${SOURCEDIR}")"
+    borg create --progress "${WORKDIR}::${TAG}" "$(basename "${SOURCEDIR}")"
     cd "${WORKDIR}/.."
     tar -cvzf "${OLDDIR}/${ARCHFILE}" "$(basename "${WORKDIR}")"
     cd "${OLDDIR}"
@@ -174,7 +174,7 @@ extract) # EXTRACT most recent or specified [TAG] to specified directory
         TAG=$(BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg list "${WORKDIR}" --short --last 1 2>/dev/null) # default to latest
     fi
 
-    BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg extract --error "${WORKDIR}::${TAG}" 2>/dev/null
+    BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg extract --progress --error "${WORKDIR}::${TAG}" 2>/dev/null
     cd "${OLDDIR}"
 
     echo "Extracted archive contents to '${OUTPUTDIR}'."
