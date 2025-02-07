@@ -146,7 +146,14 @@ create) # CREATE NEW ARCHIVE
     cd "${SOURCEDIR}/.."
     borg create --progress "${WORKDIR}::${TAG}" "$(basename "${SOURCEDIR}")"
     cd "${WORKDIR}/.."
-    tar -cvzf "${OLDDIR}/${ARCHFILE}" "$(basename "${WORKDIR}")"
+    # Try to use zstd if it is available; fall back to pigz then gzip otherwise.
+    if command -v zstd >/dev/null 2>&1; then
+        tar -cv "$(basename "${WORKDIR}")" | zstd -9 >"${OLDDIR}/${ARCHFILE}"
+    elif command -v pigz >/dev/null 2>&1; then
+        tar -cv "$(basename "${WORKDIR}")" | pigz -9 >"${OLDDIR}/${ARCHFILE}"
+    else
+        tar -cv "$(basename "${WORKDIR}")" | gzip -9 >"${OLDDIR}/${ARCHFILE}"
+    fi
     cd "${OLDDIR}"
     ;;
 
