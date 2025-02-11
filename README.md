@@ -12,7 +12,7 @@ I've been using the `.baz` extension for these archives, but you can do whatever
 
 ### Requirements
 
-You will need a working installation of [Borg Backup](https://www.borgbackup.org/).  This script is just a convenience wrapper around Borg and `tar`.
+You will need a working installation of [Borg Backup](https://www.borgbackup.org/), `tar`, and `zstd`.  This script is just a convenience wrapper around Borg and `tar`+`zstd`.  If you don't have `zstd` available, the tool will fall back to `gzip` (resulting in slower creation/extraction and larger archives).
 
 If you want to be able to use the `mount` functionality, you will also need a working installation of FUSE (See https://en.wikipedia.org/wiki/Filesystem_in_Userspace).  If you are on a Mac, you might want [macFuse](https://macfuse.github.io/).
 
