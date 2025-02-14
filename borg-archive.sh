@@ -63,6 +63,26 @@ Usage:
 EOF
 }
 
+function create_tarfile {
+    [[ -z $1 ]] && {
+        echo "TARPATH name not provided."
+        exit 97
+    }
+    [[ -z $2 ]] && {
+        echo "WORKDIR name not provided."
+        exit 97
+    }
+    cd "${2}/.."
+    # Try to use zstd if it is available; fall back to pigz then gzip otherwise.
+    if command -v zstd >/dev/null 2>&1; then
+        tar -cv "$(basename "${2}")" | zstd -9 >"${1}"
+    elif command -v pigz >/dev/null 2>&1; then
+        tar -cv "$(basename "${2}")" | pigz -9 >"${1}"
+    else
+        tar -cv "$(basename "${2}")" | gzip -9 >"${1}"
+    fi
+}
+
 function extract_tarfile {
     [[ -z $1 ]] && {
         echo "TARFILE name not provided."
@@ -145,15 +165,7 @@ create) # CREATE NEW ARCHIVE
     OLDDIR="$(pwd)"
     cd "${SOURCEDIR}/.."
     borg create --progress "${WORKDIR}::${TAG}" "$(basename "${SOURCEDIR}")"
-    cd "${WORKDIR}/.."
-    # Try to use zstd if it is available; fall back to pigz then gzip otherwise.
-    if command -v zstd >/dev/null 2>&1; then
-        tar -cv "$(basename "${WORKDIR}")" | zstd -9 >"${OLDDIR}/${ARCHFILE}"
-    elif command -v pigz >/dev/null 2>&1; then
-        tar -cv "$(basename "${WORKDIR}")" | pigz -9 >"${OLDDIR}/${ARCHFILE}"
-    else
-        tar -cv "$(basename "${WORKDIR}")" | gzip -9 >"${OLDDIR}/${ARCHFILE}"
-    fi
+    create_tarfile "${OLDDIR}/${ARCHFILE}" "${WORKDIR}"
     cd "${OLDDIR}"
     ;;
 
@@ -260,7 +272,7 @@ update)
     BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg create "${WORKDIR}::${TAG}" "$(basename "${SOURCEDIR}")" 2>/dev/null
     cd "${WORKDIR}/.."
     # shellcheck disable=SC2015
-    tar -cvzf "${OLDDIR}/.${ARCHFILE}.working" "$(basename "${WORKDIR}")" &&
+    create_tarfile "${OLDDIR}/.${ARCHFILE}.working" "${WORKDIR}" &&
         mv "${OLDDIR}/.${ARCHFILE}.working" "${OLDDIR}/${ARCHFILE}" ||
         {
             echo "Failed to update archive."
