@@ -226,8 +226,12 @@ mount) # MOUNT most recent or specified [TAG] to specified directory (read-only)
     if [ -z "${TAG}" ]; then
         TAG=$(BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg list "${WORKDIR}" --short --last 1 2>/dev/null) # default to latest
     fi
-    BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg mount --error "${WORKDIR}::${TAG}" "${MOUNTDIR}" 2>/dev/null
-
+    BORG_RELOCATED_REPO_ACCESS_IS_OK="yes" borg mount --error "${WORKDIR}::${TAG}" "${MOUNTDIR}" 2>"${WORKDIR}/.ba-error" ||
+        {
+            echo "Failed to mount:"
+            echo "   $(cat "${WORKDIR}/.ba-error")"
+            exit 4
+        }
     echo "Mounted archive to '${MOUNTDIR}' (read-only)."
     ;;
 
