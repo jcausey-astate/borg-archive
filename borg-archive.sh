@@ -95,9 +95,11 @@ function extract_tarfile {
     tar -xf "${1}" -C "${2}" --strip-components=1
 }
 
-trap '{ [[ "$ACTION" != "mount" ]] && rm -rf -- "$WORKDIR" 2> /dev/null; }' EXIT
+trap '{ [[ "$ACTION" != "mount" ]] && rm -rf -- "$WORKBASEDIR" 2> /dev/null; }' EXIT
 set -e
-WORKDIR="$(mktemp -d)"
+WORKBASEDIR="$(mktemp -d)"
+WORKDIR="${WORKBASEDIR}/borg-repo"
+mkdir -p "${WORKDIR}"
 ACTION="$1"
 
 case $ACTION in
@@ -244,11 +246,11 @@ umount)
         exit 5
     fi
     # The steps here must happen in the right order to clean everything up.
-    rm -rf "${WORKDIR}"                     # delete current WORKDIR; we don't need it.
+    rm -rf -- "${WORKBASEDIR}"              # delete current WORKBASEDIR; we don't need it.
     MOUNTDIR="${ARCHFILE}"                  # pull into correct variable for code clarity
     borg umount "${MOUNTDIR}"               # unmount the borg repo
     WORKDIR=$(cat "${MOUNTDIR}/.borg-repo") # .borg-repo becomes visible after unmount, get the temp dir name
-    rm "${MOUNTDIR}/.borg-repo"             # clean up the metadata file
+    rm -- "${MOUNTDIR}/.borg-repo"          # clean up the metadata file
     echo "Unmounted archive."
     ;;
 
