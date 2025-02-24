@@ -25,6 +25,7 @@ The script `borg-archive.sh` contains all functional code.  It is a Bash script,
 * `borg_archive.sh create archive_file.baz  /path/to/archive-root-dir [encryption] [borg-options]`
   * Initializes and creates initial archive.
   * `encryption`: Turns on encryption of the archive.
+    * NOTE:  The encryption flag should not be used for true security of a dataset, and might soon be removed from this software until the stable release of Borg version 2 (Borg2).  The reason is that making exact copies of a borg repository also copies nonces used during encryption; this create a vulnerability if two or more copies of the same repository have differing updated applied, and then are later compared.  Since the focus of this project is more aligned with _data availabiltiy_, _data archiving_, and _data sharing_, secure encryption is not considered a high priority at the moment.  It looks like changes in Borg2 will allow copies of a repository to securely diverge, so this feature might become more useful later.
   * `borg-options`: Fine-tune underlying Borg Backup parameters.
 
 * `borg_archive.sh extract archive_file.baz  /path/to/destination [tag]`
